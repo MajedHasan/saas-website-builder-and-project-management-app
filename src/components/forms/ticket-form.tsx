@@ -25,6 +25,27 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { CheckIcon, ChevronsUpDownIcon, User2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "../ui/command";
+import { cn } from "@/lib/utils";
+import Loading from "../global/loading";
+import TagCreator from "../global/tag-creator";
 
 type Props = {
   laneId: string;
@@ -43,7 +64,7 @@ const TicketForm = ({ getNewTicket, laneId, subaccountId }: Props) => {
   const [assignedTo, setAssignedTo] = useState(
     defaultData.ticket?.Assigned?.id
   );
-  const saveTimeRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const form = useForm<z.infer<typeof TicketFormSchema>>({
     mode: "onChange",
     resolver: zodResolver(TicketFormSchema),
@@ -177,6 +198,115 @@ const TicketForm = ({ getNewTicket, laneId, subaccountId }: Props) => {
                 </FormItem>
               )}
             />
+            <h3>Add tags</h3>
+            {/* WIP ADD Tag Creator */}
+            <TagCreator
+              subAccountId={subaccountId}
+              getSelectedTags={setTags}
+              defaultTags={defaultData.ticket?.Tags || []}
+            />
+            <FormLabel>Assigned To Team Member</FormLabel>
+            <Select onValueChange={setAssignedTo} defaultValue={assignedTo}>
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage alt="contact" />
+                        <AvatarFallback className="bg-primary text-sm text-white">
+                          <User2 size={14} />
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <span className="text-sm text-muted-foreground">
+                        Not Assigned
+                      </span>
+                    </div>
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {allTeamMembers.map((teamMember) => (
+                  <SelectItem key={teamMember.id} value={teamMember.id}>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage alt="contact" src={teamMember.avatarUrl} />
+                        <AvatarFallback className="bg-primary text-sm text-white">
+                          <User2 size={14} />
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <span className="text-sm text-muted-foreground">
+                        {teamMember.name}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormLabel>Customer</FormLabel>
+            <Popover>
+              <PopoverTrigger asChild className="w-full">
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="justify-between"
+                >
+                  {contact
+                    ? contactList.find((c) => c.id === contact)?.name
+                    : "Select Customer..."}
+                  <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[400px] p-0">
+                <Command>
+                  <CommandInput
+                    placeholder="Search..."
+                    className="h-9"
+                    value={search}
+                    onChangeCapture={async (value) => {
+                      //@ts-ignore
+                      setSearch(value.target.value);
+                      if (saveTimerRef.current)
+                        clearTimeout(saveTimerRef.current);
+                      saveTimerRef.current = setTimeout(async () => {
+                        const response = await searchContacts(
+                          //@ts-ignore
+                          value.target.value
+                        );
+                        setContactList(response);
+                        setSearch("");
+                      }, 1000);
+                    }}
+                  />
+                  <CommandEmpty>No Customer found.</CommandEmpty>
+                  <CommandGroup>
+                    {contactList.map((c) => (
+                      <CommandItem
+                        key={c.id}
+                        value={c.id}
+                        onSelect={(currentValue) => {
+                          setContact(
+                            currentValue === contact ? "" : currentValue
+                          );
+                        }}
+                      >
+                        {c.name}
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            contact === c.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Button className="w-20 mt-4" disabled={isLoading} type="submit">
+              {form.formState.isSubmitting ? <Loading /> : "Save"}
+            </Button>
           </form>
         </Form>
       </CardContent>
