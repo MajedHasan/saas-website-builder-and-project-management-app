@@ -58,7 +58,7 @@ const InfoBar = ({ notifications, subAccountId, className, role }: Props) => {
                 <BellIcon size={17} />
               </div>
             </SheetTrigger>
-            <SheetContent className="mt-4 mr-4 pr-4 flex flex-col">
+            <SheetContent className="mt-4 mr-4 pr-4 flex flex-col flex-wrap h-fit">
               <SheetHeader className="text-left">
                 <SheetTitle>Notifications</SheetTitle>
                 <SheetDescription>
