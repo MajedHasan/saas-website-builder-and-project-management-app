@@ -8,16 +8,16 @@ export default authMiddleware({
   publicRoutes: ["/site", "/api/uploadthing"],
   async beforeAuth(auth, req) {},
   async afterAuth(auth, req) {
-    // Rewrite for domains
+    //rewrite for domains
     const url = req.nextUrl;
     const searchParams = url.searchParams.toString();
     let hostname = req.headers;
 
     const pathWithSearchParams = `${url.pathname}${
-      searchParams.length > 0 ? `?${searchParams}` : ``
+      searchParams.length > 0 ? `?${searchParams}` : ""
     }`;
 
-    // If the subdomain Exists
+    //if subdomain exists
     const customSubDomain = hostname
       .get("host")
       ?.split(`${process.env.NEXT_PUBLIC_DOMAIN}`)
@@ -25,7 +25,7 @@ export default authMiddleware({
 
     if (customSubDomain) {
       return NextResponse.rewrite(
-        new URL(`/${customSubDomain}${pathWithSearchParams}`)
+        new URL(`/${customSubDomain}${pathWithSearchParams}`, req.url)
       );
     }
 
@@ -37,7 +37,7 @@ export default authMiddleware({
       url.pathname === "/" ||
       (url.pathname === "/site" && url.host === process.env.NEXT_PUBLIC_DOMAIN)
     ) {
-      return NextResponse.rewrite(new URL(`/site`, req.url));
+      return NextResponse.rewrite(new URL("/site", req.url));
     }
 
     if (
