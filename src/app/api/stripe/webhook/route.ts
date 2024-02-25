@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
@@ -15,7 +15,7 @@ const stripeWebhookEvents = new Set([
   "customer.subscription.deleted",
 ]);
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   let stripeEvent: Stripe.Event;
   const body = await req.text();
   const sig = headers().get("Stripe-Signature");

@@ -1,8 +1,8 @@
-import { Separator } from "@/components/ui/separator";
+import React from "react";
+import { stripe } from "@/lib/stripe";
 import { addOnProducts, pricingCards } from "@/lib/constants";
 import { db } from "@/lib/db";
-import { stripe } from "@/lib/stripe";
-import React from "react";
+import { Separator } from "@/components/ui/separator";
 import PricingCard from "./_components/pricing-card";
 import {
   Table,
@@ -13,15 +13,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import clsx from "clsx";
+import SubscriptionHelper from "./_components/subscription-helper";
 
 type Props = {
-  params: {
-    agencyId: string;
-  };
+  params: { agencyId: string };
 };
 
 const page = async ({ params }: Props) => {
-  // CHALLANGE: Create the add on products
+  //CHALLENGE : Create the add on  products
   const addOns = await stripe.products.list({
     ids: addOnProducts.map((product) => product.id),
     expand: ["data.default_price"],
@@ -55,18 +54,23 @@ const page = async ({ params }: Props) => {
     ...charges.data.map((charge) => ({
       description: charge.description,
       id: charge.id,
-      data: `${new Date(charge.created * 1000).toLocaleTimeString()} ${new Date(
+      date: `${new Date(charge.created * 1000).toLocaleTimeString()} ${new Date(
         charge.created * 1000
       ).toLocaleDateString()}`,
       status: "Paid",
-      amount: `${charge.amount / 100}`,
+      amount: `$${charge.amount / 100}`,
     })),
   ];
 
   return (
     <>
+      <SubscriptionHelper
+        prices={prices.data}
+        customerId={agencySubscription?.customerId || ""}
+        planExists={agencySubscription?.Subscription?.active === true}
+      />
       <h1 className="text-4xl p-4">Billing</h1>
-      <Separator className="mb-6" />
+      <Separator className=" mb-6" />
       <h2 className="text-2xl p-4">Current Plan</h2>
       <div className="flex flex-col lg:!flex-row justify-between gap-8">
         <PricingCard
@@ -83,12 +87,13 @@ const page = async ({ params }: Props) => {
               ? "Change Plan"
               : "Get Started"
           }
-          highlightDescription="Want to modify your plan? You can do this here. If you have further question contact support@plura-app.com"
+          highlightDescription="Want to modify your plan? You can do this here. If you have
+          further question contact support@plura-app.com"
           highlightTitle="Plan Options"
           description={
             agencySubscription?.Subscription?.active === true
-              ? currentPlanDetails?.description || "Let's get started"
-              : "Let's get started! Pick a plan that works best for your."
+              ? currentPlanDetails?.description || "Lets get started"
+              : "Lets get started! Pick a plan that works best for you."
           }
           duration="/ month"
           features={
@@ -101,7 +106,7 @@ const page = async ({ params }: Props) => {
           }
           title={
             agencySubscription?.Subscription?.active === true
-              ? currentPlanDetails?.title || "Startar"
+              ? currentPlanDetails?.title || "Starter"
               : "Starter"
           }
         />
