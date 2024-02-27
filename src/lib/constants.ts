@@ -220,8 +220,15 @@ export type EditorBtns =
   | "video"
   | "__body"
   | "image"
+  | "button"
   | null
-  | "3Col";
+  | "3Col"
+  | "imageBox"
+  | "pricingBox"
+  | "bannerSection"
+  | "callToAction"
+  | "flipBox"
+  | "reviewBox";
 
 export const defaultStyles: React.CSSProperties = {
   backgroundPosition: "center",

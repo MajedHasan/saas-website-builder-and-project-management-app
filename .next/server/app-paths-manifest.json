@@ -1,0 +1,3 @@
+{
+  "/(main)/subaccount/[subaccountId]/funnels/[funnelId]/editor/[funnelPageId]/page": "app/(main)/subaccount/[subaccountId]/funnels/[funnelId]/editor/[funnelPageId]/page.js"
+}
